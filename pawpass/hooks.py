@@ -64,6 +64,25 @@ app_license = "mit"
 # 	"Role": "home_page"
 # }
 
+fixtures = [
+    {
+        "dt":"Role", "filters": [
+            [ "role_name", "in", [
+                "PP Front Desk", "PP Attendant",
+                "PP Manager"
+            ]]
+        ]
+    },
+    {
+        "dt":"DocPerm", "filters": [
+            [ "role_name", "in", [
+                "PP Front Desk", "PP Attendant",
+                "PP Manager"
+            ]]
+        ]
+    }
+
+]
 # Generators
 # ----------
 
@@ -77,10 +96,10 @@ app_license = "mit"
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "pawpass.utils.jinja_methods",
+jinja = {
+ 	"methods": "pawpass.utils.get_shop_name",
 # 	"filters": "pawpass.utils.jinja_filters"
-# }
+ }
 
 # Installation
 # ------------
@@ -127,8 +146,8 @@ app_license = "mit"
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
+#  	"Stay Card": "pawpass.permissions.stay_card_query_conditions"
+#  }
 #
 # has_permission = {
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",

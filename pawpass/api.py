@@ -44,3 +44,55 @@ def transfer_stays(from_attendant, to_attendant):
             "PawPass: trasnfer_stays failed",
         )
         raise
+
+#D1
+@frappe.whitelist()
+def share_stay_card(stay_card_name, user_email):
+    frappe.get_doc("Stay Card", stay_card_name)
+    frappe.share.add(
+        "Stay Card",
+        stay_card_name,
+        user_email,
+        read=1
+    )
+    return {
+        "message": "success"
+    }
+
+#D4 - dont leak data
+@frappe.whitelist()
+def unsafe():
+    return frappe.get_all(
+        "Stay Card",
+        fields= [
+            "name","pet","owner_name",
+            "owner_phone","owner_email",
+            "status",
+        ],
+    )
+
+@frappe.whitelist()
+def safe():
+    rows = frappe.get_list(
+        "Stay Card",
+        fields = [
+            "name","pet",
+            "owner_name","owner_email",
+            "status"
+        ],
+    )
+    if "PP Manager" not in frappe.get_roles():
+        for i in rows:
+            i.pop("owner_name")
+            i.pop("owner_email")
+    return rows
+
+#E2
+@frappe.whitelist()
+def rename_attendant(old, new):
+    return frappe.rename_doc(
+        "Attendant",
+        old,
+        new,
+        merge=False
+    )

@@ -1,0 +1,49 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2026-09-23 15:56:15.952786",
+ "disable_prepared_report_automation": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "default": "%",
+   "fieldname": "attendant",
+   "fieldtype": "Link",
+   "label": "Attendant",
+   "mandatory": 0,
+   "options": "Attendant",
+   "wildcard_filter": 0
+  }
+ ],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": null,
+ "modified": "2026-09-23 16:15:18.579888",
+ "modified_by": "Administrator",
+ "module": "PawPass",
+ "name": "Active Stays",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "select name, pet, owner_name, status, assigned_attendant,\nexpected_checkout_date, creation\nfrom `tabStay Card` where status not in (\"Picked Up\", \"Cancelled\")\nand (%(attendant)s is null or %(attendant)s='' or assigned_attendant = %(attendant)s\n)\norder by expected_checkout_date asc",
+ "ref_doctype": "Stay Card",
+ "report_name": "Active Stays",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "PP Front Desk"
+  },
+  {
+   "role": "PP Attendant"
+  },
+  {
+   "role": "PP Manager"
+  }
+ ],
+ "timeout": 0
+}
