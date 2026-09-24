@@ -105,7 +105,7 @@ jinja = {
 # ------------
 
 # before_install = "pawpass.install.before_install"
-# after_install = "pawpass.install.after_install"
+after_install = "pawpass.setup.after_install"
 
 # Uninstallation
 # ------------
@@ -157,34 +157,25 @@ jinja = {
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"*": {
+		"on_update": "pawpass.audit.log_change",
+		"on_cancel": "pawpass.audit.log_change",
+		"on_submit": "pawpass.audit.log_change"
+	}
+    # "Stay Card":{
+    #     "on_submit": "pawpass.api.send_webhook"
+    # }
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"pawpass.tasks.all"
-# 	],
-# 	"daily": [
-# 		"pawpass.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"pawpass.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"pawpass.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"pawpass.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"pawpass.jobs.check_upcoming_checkouts"
+	],
+}
 
 # Testing
 # -------

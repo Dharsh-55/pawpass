@@ -93,19 +93,31 @@ class StayCard(Document):
             invoice = frappe.new_doc("Invoice")
             invoice.stay_card = self.name
             invoice.owner_name = self.owner_name
-            invoice.invoice_date = today()
-            invoice.services_total = self.services_total
+            invoice.invoice_name = today()
+            invoice.service_total = self.services_total
             invoice.total_amount = self.final_amount
             invoice.payment_status = "Unpaid"
+
             invoice.insert(ignore_permissions=True)
+
+            invoice.invoice_number = invoice.name
+            invoice.save(ignore_permissions=True)
 
         frappe.enqueue(
             "pawpass.api.send_stay_complete_email",
             stay_card_name=self.name
         )
-
+    
     def on_cancel(self):
         self.status = "Cancelled"
+
+        frappe.db.set_value(
+            "Stay Card",
+            self.name,
+            "status",
+            "Cancelled",
+            update_modified=False
+        )
 
         total_stays = frappe.db.get_value(
             "Pet",

@@ -96,3 +96,27 @@ def rename_attendant(old, new):
         new,
         merge=False
     )
+    
+# L1
+import frappe
+
+
+@frappe.whitelist()
+def get_stay_summary():
+    stay_card_name = frappe.form_dict.get("stay_card_name")
+
+    if not frappe.db.exists("Stay Card", stay_card_name):
+        frappe.local.response.http_status_code = 404
+        return {"error": "Not found"}
+
+    stay = frappe.get_doc("Stay Card", stay_card_name)
+
+    return {
+        "name": stay.name,
+        "pet": stay.pet,
+        "owner_name": stay.owner_name,
+        "status": stay.status,
+        "expected_checkout_date": stay.expected_checkout_date,
+        "final_amount": stay.final_amount
+    }
+    
