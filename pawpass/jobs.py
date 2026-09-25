@@ -7,10 +7,8 @@ def check_upcoming_checkouts():
         {
             "action": "checkout_reminder",
             "date": today()
-        },
-        "name"
+        }, "name"
     )
-
     if already_done:
         return
     settings = frappe.get_single("PawPass Settings")
@@ -28,7 +26,6 @@ def check_upcoming_checkouts():
             "expected_checkout_date"
         ]
     )
-
     for stay in stays:
         if stay.owner_email:
             frappe.sendmail(
@@ -38,8 +35,7 @@ def check_upcoming_checkouts():
 Hello {stay.owner_name},
 your pet {stay.pet} is due for checkout on
 {stay.expected_checkout_date}.
-"""
-            )
+""")
 
     log = frappe.new_doc("Audit Log")
     log.doctype_name = "Stay Card"
@@ -56,14 +52,11 @@ your pet {stay.pet} is due for checkout on
             "Stay Card",
             fields=["name", "assigned_attendant"]
         )
-
         names = [x.assigned_attendant for x in stay_cards if x.assigned_attendant]
-
         attendants = frappe.get_all(
             "Attendant",
             filters={"name": ["in", names]},
             fields=["name", "attendant_name", "phone"]
         )
-
         for att in attendants:
             print(att.attendant_name, att.phone)

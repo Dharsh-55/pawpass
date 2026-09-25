@@ -1,6 +1,5 @@
 import frappe
 
-
 def after_install():
     create_default_service_types()
     create_default_settings()
@@ -10,9 +9,7 @@ def after_install():
 
 def create_default_service_types():
     service_types = [
-        # EXACT 4 service types from the task brief
     ]
-
     for service in service_types:
         if not frappe.db.exists(
             "Service Type",
@@ -25,9 +22,13 @@ def create_default_service_types():
 
 
 def create_default_settings():
-    settings = frappe.get_single("PawPass Settings")
+    if not frappe.db.exists("PawPass Settings", "PawPass Settings"):
+        settings = frappe.new_doc("PawPass Settings")
 
-    if not settings.reminder_days:
-        settings.reminder_days = 2
+        settings.shop_name = "PawPass Grooming & Boarding"
+        settings.manager_email = "manager@pawpass.local"
+        settings.default_boarding_rate = 400
+        settings.vaccination_grace_days = 0
+        settings.reminder_days_before_checkout = 1
 
-    settings.save(ignore_permissions=True)
+        settings.insert(ignore_permissions=True)

@@ -14,16 +14,17 @@ def on_submit(self):
     pet.total_stays += 1
     pet.save()
 
-### Part-B: B2d - Concurrency
+
+
+### Part-B: B2d - Concurrency, Optimistic Locking
 Let's assume that User A and User B opens the same document at the same time and User A does some change and saves it. Wihtout refreshing the page or reloading the document User B wont be able to change something again and save it, frappe will block the save since B is working with the older version of the document to prevent overwriting A's change.
 
 
 ### Part-D: D2 - frappe.get_all()
+frappe.get_all() bypasses all the permissions and when written inside a whitelisted method is risky as anyone can access this method and make changes in the db directly. so get_list() is always preferred as it is subjected to roles and permissions.
 
 
-
-
-### Part-E
+### Part-E: Stay Card Lifecycle
 
 # E1 - self.save() inside on_update
 def on_update(self):
@@ -32,8 +33,12 @@ the above code leads to an infinite loop of running of on_update() -> save() -> 
 def on_update(self):
     frappe.logger().info("stay card updated")
 
+# E2 - merge=True
+during renaming records ATT-001 to ATT-005, if the New Name ATT-005 already exists and merge=False it'll throw error that ATT-005 is existing and cant be renamed. but if merge=True, the details of original ATT-005 and the renamed ATT-005(ATT-001) can be combined and can lead to data inconsistency. so merge=True is dangerous in this case.
+
 # E3 - doc.get_value() vs get_doc() 
 In the Attendant on_update controller, frappe.db.get_value() is preferable because only reminder_days_before_checkout is required from PawPass Settings. get_doc() loads the complete settings document as a Document object, whereas get_value() directly retrieves the required field without loading the full document.
+
 
 
 ### I1 - Active stays query report
@@ -59,16 +64,18 @@ order by expected_checkout_date asc
 Parameterized query is preferred because it avoides sql injection and does the substitution of values safely.
 
 
-### H1 - Async frappe.call() and validate
+### H1 - async frappe.call() and validate
 
-frappe.call() is asynchronous. It sends a request to the server and the
+frappe.call() is asynchronous. it sends a request to the server and the
 response comes back later.
-when I use frappe.call() inside the client validate event, validation can
-finish before the server response comes back. So I cannot reliably use the response to decide whether the form should be saved.
+when we use frappe.call() inside the client validate event, validation can
+finish before the server response comes back. so we cannot reliably use the response to decide whether the form should be saved.
 
-so, I use asynchronous calls in events such as refresh,
+so, we can use asynchronous calls in events such as refresh,
 onload, or field-change events instead of depending on them inside
 validate.
+
+
 
 ### J1 - Print format and before_print
 
@@ -78,6 +85,7 @@ the template can makes the print format more complex.
 
 a better approach for data that is needed by the print format is to
 prepare it in the before_print() method of the controller and then use the prepared value in jinja.
+
 
 
 ### K2 - N+1 query problem
@@ -97,3 +105,14 @@ def show_attendant_details():
         )
         for att in attendants:
             print(att.attendant_name, att.phone)
+
+
+
+### N1 - ignore_permissions=True
+
+1. stay_card.py: on_submit() - creates the invoice automatically as part of the stay card lifecycle, not through a direct user action.
+2. stay_card.py: on_submit() - saves the automatically generated invoice number as part of the system-driven invoice creation process.
+3. setup.py: create_default_service_types() - creates default service type records automatically during app installation.
+4. setup.py: create_default_settings() - initializes the default pawpass settings automatically during app installation.
+5. jobs.py: check_upcoming_checkouts() - creates an audit log automatically when the scheduled checkout-reminder job runs.
+
